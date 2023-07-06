@@ -1,9 +1,7 @@
 package com.anastasiakassari.financialtransactionservice.service;
 
 import com.anastasiakassari.financialtransactionservice.dto.AccountDTO;
-import com.anastasiakassari.financialtransactionservice.exception.AccountNotFoundException;
-import com.anastasiakassari.financialtransactionservice.exception.InvalidAmountException;
-import com.anastasiakassari.financialtransactionservice.exception.MissingParameterException;
+import com.anastasiakassari.financialtransactionservice.exception.*;
 import com.anastasiakassari.financialtransactionservice.model.Account;
 import com.anastasiakassari.financialtransactionservice.model.Transaction;
 import com.anastasiakassari.financialtransactionservice.repository.AccountRepository;
@@ -13,10 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -34,55 +31,49 @@ public class AccountServiceImpl implements AccountService {
     public List<Account> getAccounts() {
         List<Account> accounts = new ArrayList<>();
         accountRepository.findAll().forEach(accounts::add);
-        // TODO: Error NoAccountsFoundException
         return accounts;
     }
 
     @Override
-    public Account getAccountById(Long id) {
-        return accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
+    public Account getAccountById(Long id) throws AccountNotFoundException{
+        return accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException("Account not found with id: "+id));
     }
 
     @Override
     @Transactional
-    public Account createAccount(AccountDTO dto) {
-        System.out.println("Account DTO: " + dto);
+    public Account createAccount(AccountDTO dto) throws FinancialTransactionServiceException {
         //Invalid params
         if (dto.getCurrency() == null)
-            throw new MissingParameterException();
+            throw new MissingParameterException("One or more parameters are missing");
         //Invalid balance
-        if (dto.getBalance() < 0)
-            throw new InvalidAmountException();
+        if (dto.getBalance() != null && dto.getBalance() < 0)
+            throw new InvalidAmountException("Invalid amount");
 
         Account account = new Account();
         account.setCurrency(dto.getCurrency());
-        account.setBalance(dto.getBalance());
+        account.setBalance(Optional.ofNullable(dto.getBalance()).orElse(0.0));
         account.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        System.out.println("new account:" + account);
-        return accountRepository.save(new Account(account));
+        return accountRepository.save(account);
     }
 
     @Override
-    public Account updateAccount(Long id, Account account) {
-        // TODO: Error handling
-        Account dbAccount = accountRepository.findById(id).orElseThrow(AccountNotFoundException::new);
-        System.out.println(dbAccount.toString());
+    public Account updateAccount(Account account) throws FinancialTransactionServiceException{
+        if (account.getId() == null || account.getCurrency() == null || account.getBalance() == null)
+            throw new InvalidParametersException("Invalid parameters");
+        Account dbAccount = accountRepository.findById(account.getId()).orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + account.getId()));
         dbAccount.setCurrency(account.getCurrency());
+        if (account.getBalance() == null || account.getBalance() < 0)
+            throw new InvalidAmountException("Invalid balance amount");
         dbAccount.setBalance(account.getBalance());
-        dbAccount.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         return accountRepository.save(dbAccount);
     }
 
     @Override
-    public boolean deleteAccount(Long id) {
-        // TODO: Error handling
+    public boolean deleteAccount(Long id) throws IllegalArgumentException{
         try {
             accountRepository.deleteById(id);
             return true;
         } catch (IllegalArgumentException e) {
-
-        }
-        finally {
             return false;
         }
     }

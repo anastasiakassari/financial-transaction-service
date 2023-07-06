@@ -5,4 +5,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "One or more parameters are missing")
 public class MissingParameterException extends FinancialTransactionServiceException{
+    public MissingParameterException() {
+        super();
+    }
+    public MissingParameterException(String message) {
+        super(message);
+    }
 }

@@ -34,46 +34,41 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction getTransactionById(Long id) {
-        return transactionRepository.findById(id).orElseThrow(TransactionNotFoundException::new);
+    public Transaction getTransactionById(Long id) throws TransactionNotFoundException{
+        return transactionRepository.findById(id).orElseThrow(() -> new TransactionNotFoundException("Transaction not found with id: "+id));
     }
 
     @Override
     @Transactional
-    public Transaction createTransaction(TransactionDTO dto) {
+    public Transaction createTransaction(TransactionDTO dto) throws FinancialTransactionServiceException{
         //Invalid params
         if(dto.getSourceAccountId() == null || dto.getTargetAccountId() == null || dto.getAmount() == null || dto.getCurrency() == null)
-            throw new MissingParameterException();
-
-        System.out.println("Transaction dto: "+dto);
+            throw new MissingParameterException("One or more parameters are missing");
 
         long sourceId = dto.getSourceAccountId();
         long targetId = dto.getTargetAccountId();
         double amount = dto.getAmount();
         Currency currency = dto.getCurrency();
 
-        Account sourceAccount = accountRepository.findById(sourceId).orElseThrow(AccountNotFoundException::new);
-        Account targetAccount = accountRepository.findById(targetId).orElseThrow(AccountNotFoundException::new);
-
-        System.out.println("Source account: "+sourceAccount);
-        System.out.println("Target account: "+targetAccount);
+        Account sourceAccount = accountRepository.findById(sourceId).orElseThrow(() -> new AccountNotFoundException("Account not found with id: "+sourceId));
+        Account targetAccount = accountRepository.findById(targetId).orElseThrow(() -> new AccountNotFoundException("Account not found with id: "+sourceId));
 
         //Same account
         if (sourceAccount.equals(targetAccount))
-            throw new SameAccountException();
+            throw new SameAccountException("Source and destination accounts are the same");
 
         //Invalid amount
         if (amount < 0)
-            throw new InvalidAmountException();
+            throw new InvalidAmountException("Invalid transaction amount");
 
         //Invalid currency
         if (!sourceAccount.getCurrency().equals(currency) || !targetAccount.getCurrency().equals(currency) || !sourceAccount.getCurrency().equals(targetAccount.getCurrency()))
-            throw new InvalidCurrencyException();
+            throw new InvalidCurrencyException("Invalid currency");
 
         //Insufficient balance
         double currentBalanceSource = sourceAccount.getBalance();
-        if (currentBalanceSource < amount || currentBalanceSource-amount < 0)
-            throw new InsufficientBalanceException();
+        if (currentBalanceSource < amount)
+            throw new InsufficientBalanceException("Insufficient balance");
         double currentBalanceTarget = targetAccount.getBalance();
 
         Transaction transaction = new Transaction();
@@ -81,8 +76,6 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setTargetAccountId(targetId);
         transaction.setAmount(amount);
         transaction.setCurrency(currency);
-
-        System.out.println("Transaction: "+transaction);
 
         // Update accounts
         sourceAccount.setBalance(currentBalanceSource-amount);

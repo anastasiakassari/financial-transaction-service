@@ -10,7 +10,7 @@ public interface AccountService {
     public List<Account> getAccounts();
     public Account getAccountById(Long id);
     public Account createAccount(AccountDTO account);
-    public Account updateAccount(Long id, Account account);
+    public Account updateAccount(Account account);
     public boolean deleteAccount(Long id);
     public List<Transaction> getAllTransactions(Long accountId);
     public List<Transaction> getIncomingTransactions(Long accountId);
