@@ -8,13 +8,8 @@ import com.anastasiakassari.financialtransactionservice.model.Transaction;
 import com.anastasiakassari.financialtransactionservice.service.AccountService;
 import com.anastasiakassari.financialtransactionservice.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,33 +28,35 @@ public class FinancialTransactionController {
     }
 
     @GetMapping("/accounts")
-    public ResponseEntity<List<Account>> getAccounts() {
-        return ResponseEntity.ok(accountService.getAccounts());
+    public List<Account> getAccounts() {
+        return accountService.getAccounts();
     }
 
     @GetMapping("/account/{id}")
-    public ResponseEntity<Account> getAccountById(@PathVariable Long id) {
-        return ResponseEntity.ok(accountService.getAccountById(id));
+    public Account getAccountById(@PathVariable Long id) {
+        return accountService.getAccountById(id);
     }
 
     @PostMapping("/account")
-    public ResponseEntity<Account> createAccount(@RequestBody AccountDTO account) throws FinancialTransactionServiceException {
-        return ResponseEntity.ok(accountService.createAccount(account));
+    @ResponseStatus(HttpStatus.CREATED)
+    public Account createAccount(@RequestBody AccountDTO account) throws FinancialTransactionServiceException {
+        return accountService.createAccount(account);
     }
 
     @GetMapping("/transactions")
-    public ResponseEntity<List<Transaction>> getTransactions() {
-        return ResponseEntity.ok(transactionService.getTransactions());
+    public List<Transaction> getTransactions() {
+        return transactionService.getTransactions();
     }
 
     @GetMapping("/transaction/{id}")
-    public ResponseEntity<Transaction> getTransactionById(@PathVariable Long id) {
-        return ResponseEntity.ok(transactionService.getTransactionById(id));
+    public Transaction getTransactionById(@PathVariable Long id) {
+        return transactionService.getTransactionById(id);
     }
 
     @PostMapping("/transaction")
-    public ResponseEntity<Transaction> createTransaction(@RequestBody TransactionDTO transaction) throws FinancialTransactionServiceException{
-        return ResponseEntity.ok(transactionService.createTransaction(transaction));
+    @ResponseStatus(HttpStatus.CREATED)
+    public Transaction createTransaction(@RequestBody TransactionDTO transaction) throws FinancialTransactionServiceException {
+        return transactionService.createTransaction(transaction);
     }
 
 }

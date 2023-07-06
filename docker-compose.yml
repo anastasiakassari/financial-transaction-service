@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    restart: always
+    container_name: financial-transaction-service
+    environment:
+      PORT: 8080
+      DB_HOST: fts-db
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      PROFILE: dev
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+  db:
+    image: postgres:13-alpine
+    container_name: fts-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - fts-db:/var/lib/postgresql/data
+    healthcheck:
+      test: "pg_isready --username=postgres"
+      timeout: 2s
+      retries: 10
+
+volumes:
+  fts-db:
+    external: false

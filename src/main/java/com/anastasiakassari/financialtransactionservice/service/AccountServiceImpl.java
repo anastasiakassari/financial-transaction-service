@@ -35,8 +35,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account getAccountById(Long id) throws AccountNotFoundException{
-        return accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException("Account not found with id: "+id));
+    public Account getAccountById(Long id) throws AccountNotFoundException {
+        return accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(ExceptionMessage.ACCOUNT_NOT_FOUND + " with id: " + id));
     }
 
     @Override
@@ -44,10 +44,10 @@ public class AccountServiceImpl implements AccountService {
     public Account createAccount(AccountDTO dto) throws FinancialTransactionServiceException {
         //Invalid params
         if (dto.getCurrency() == null)
-            throw new MissingParameterException("One or more parameters are missing");
+            throw new MissingParameterException(ExceptionMessage.MISSING_PARAMETER);
         //Invalid balance
         if (dto.getBalance() != null && dto.getBalance() < 0)
-            throw new InvalidAmountException("Invalid amount");
+            throw new InvalidAmountException(ExceptionMessage.INVALID_AMOUNT);
 
         Account account = new Account();
         account.setCurrency(dto.getCurrency());
@@ -57,23 +57,25 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account updateAccount(Account account) throws FinancialTransactionServiceException{
+    public Account updateAccount(Account account) throws FinancialTransactionServiceException {
         if (account.getId() == null || account.getCurrency() == null || account.getBalance() == null)
-            throw new InvalidParametersException("Invalid parameters");
-        Account dbAccount = accountRepository.findById(account.getId()).orElseThrow(() -> new AccountNotFoundException("Account not found with id: " + account.getId()));
+            throw new InvalidParametersException(ExceptionMessage.INVALID_PARAMETERS);
+        Account dbAccount = accountRepository.findById(account.getId()).orElseThrow(() -> new AccountNotFoundException(ExceptionMessage.ACCOUNT_NOT_FOUND + " with id: " + account.getId()));
         dbAccount.setCurrency(account.getCurrency());
         if (account.getBalance() == null || account.getBalance() < 0)
-            throw new InvalidAmountException("Invalid balance amount");
+            throw new InvalidAmountException(ExceptionMessage.INVALID_AMOUNT);
         dbAccount.setBalance(account.getBalance());
         return accountRepository.save(dbAccount);
     }
 
     @Override
-    public boolean deleteAccount(Long id) throws IllegalArgumentException{
+    public boolean deleteAccount(Long id) throws AccountNotFoundException {
+        if (accountRepository.findById(id).isEmpty())
+            throw new AccountNotFoundException(ExceptionMessage.ACCOUNT_NOT_FOUND + " with id: " + id);
         try {
             accountRepository.deleteById(id);
             return true;
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             return false;
         }
     }

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
+@SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Data
 @AllArgsConstructor
@@ -25,7 +26,6 @@ public class Account implements Serializable {
     @Column
     @Enumerated(EnumType.STRING)
     private Currency currency;
-
     @Column
     private Timestamp createdAt;
 

@@ -25,7 +25,6 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
 
-
     @Override
     public List<Transaction> getTransactions() {
         List<Transaction> transactions = new ArrayList<>();
@@ -34,41 +33,41 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction getTransactionById(Long id) throws TransactionNotFoundException{
-        return transactionRepository.findById(id).orElseThrow(() -> new TransactionNotFoundException("Transaction not found with id: "+id));
+    public Transaction getTransactionById(Long id) throws TransactionNotFoundException {
+        return transactionRepository.findById(id).orElseThrow(() -> new TransactionNotFoundException(ExceptionMessage.TRANSACTION_NOT_FOUND + " with id: " + id));
     }
 
     @Override
     @Transactional
-    public Transaction createTransaction(TransactionDTO dto) throws FinancialTransactionServiceException{
+    public Transaction createTransaction(TransactionDTO dto) throws FinancialTransactionServiceException {
         //Invalid params
-        if(dto.getSourceAccountId() == null || dto.getTargetAccountId() == null || dto.getAmount() == null || dto.getCurrency() == null)
-            throw new MissingParameterException("One or more parameters are missing");
+        if (dto.getSourceAccountId() == null || dto.getTargetAccountId() == null || dto.getAmount() == null || dto.getCurrency() == null)
+            throw new MissingParameterException(ExceptionMessage.MISSING_PARAMETER);
 
         long sourceId = dto.getSourceAccountId();
         long targetId = dto.getTargetAccountId();
         double amount = dto.getAmount();
         Currency currency = dto.getCurrency();
 
-        Account sourceAccount = accountRepository.findById(sourceId).orElseThrow(() -> new AccountNotFoundException("Account not found with id: "+sourceId));
-        Account targetAccount = accountRepository.findById(targetId).orElseThrow(() -> new AccountNotFoundException("Account not found with id: "+sourceId));
+        Account sourceAccount = accountRepository.findById(sourceId).orElseThrow(() -> new AccountNotFoundException(ExceptionMessage.ACCOUNT_NOT_FOUND + " with id: " + sourceId));
+        Account targetAccount = accountRepository.findById(targetId).orElseThrow(() -> new AccountNotFoundException(ExceptionMessage.ACCOUNT_NOT_FOUND + " with id: " + targetId));
 
         //Same account
         if (sourceAccount.equals(targetAccount))
-            throw new SameAccountException("Source and destination accounts are the same");
+            throw new SameAccountException(ExceptionMessage.SAME_ACCOUNT);
 
         //Invalid amount
-        if (amount < 0)
-            throw new InvalidAmountException("Invalid transaction amount");
+        if (amount <= 0)
+            throw new InvalidAmountException(ExceptionMessage.INVALID_AMOUNT);
 
         //Invalid currency
-        if (!sourceAccount.getCurrency().equals(currency) || !targetAccount.getCurrency().equals(currency) || !sourceAccount.getCurrency().equals(targetAccount.getCurrency()))
-            throw new InvalidCurrencyException("Invalid currency");
+        if (!sourceAccount.getCurrency().equals(currency) || !targetAccount.getCurrency().equals(currency))
+            throw new InvalidCurrencyException(ExceptionMessage.INVALID_CURRENCY);
 
         //Insufficient balance
         double currentBalanceSource = sourceAccount.getBalance();
         if (currentBalanceSource < amount)
-            throw new InsufficientBalanceException("Insufficient balance");
+            throw new InsufficientBalanceException(ExceptionMessage.INSUFFICIENT_BALANCE);
         double currentBalanceTarget = targetAccount.getBalance();
 
         Transaction transaction = new Transaction();
@@ -78,8 +77,8 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setCurrency(currency);
 
         // Update accounts
-        sourceAccount.setBalance(currentBalanceSource-amount);
-        targetAccount.setBalance(currentBalanceTarget+amount);
+        sourceAccount.setBalance(currentBalanceSource - amount);
+        targetAccount.setBalance(currentBalanceTarget + amount);
 
         accountRepository.save(sourceAccount);
         accountRepository.save(targetAccount);
