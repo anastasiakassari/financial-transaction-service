@@ -40,7 +40,7 @@ class TransactionServiceTest {
     }
 
     @Test
-    void getTransactions() {
+    void testGetTransactions() {
         List<Transaction> transactions = transactionService.getTransactions();
         assertNotNull(transactions);
         int initialSize = transactions.size();
@@ -57,7 +57,7 @@ class TransactionServiceTest {
     }
 
     @Test
-    void getTransactionById() {
+    void testGetTransactionById() {
         Transaction transaction = transactionRepository.save(
                 new Transaction(null, 1L, 2L, 1.0, Currency.EUR));
 
@@ -67,14 +67,14 @@ class TransactionServiceTest {
     }
 
     @Test
-    void failToGetTransactionWithInvalidId() {
+    void testGetTransactionFailsWithInvalidId() {
         long invalidId = -1L;
         var exception = assertThrows(TransactionNotFoundException.class, () -> transactionService.getTransactionById(invalidId));
-        assertEquals(ExceptionMessage.TRANSACTION_NOT_FOUND + " with id: " + invalidId, exception.getMessage());
+        assertEquals(ExceptionMessage.TRANSACTION_NOT_FOUND + " with ID: " + invalidId, exception.getMessage());
     }
 
     @Test
-    void createTransactionWithAllParams() {
+    void testCreateTransactionFailsWithAllParams() {
         long sourceId = 1L;
         long targetId = 2L;
         double amount = 1.0;
@@ -109,7 +109,7 @@ class TransactionServiceTest {
     }
 
     @Test
-    void failToCreateTransactionWithMissingParams() {
+    void testCreateTransactionFailsWithMissingParams() {
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(1L);
         dto.setTargetAccountId(-1L);
@@ -120,7 +120,7 @@ class TransactionServiceTest {
     }
 
     @Test
-    void failToCreateTransactionWithInvalidSourceAccountId() {
+    void testCreateTransactionFailsWithInvalidSourceAccountId() {
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(-1L);
         dto.setTargetAccountId(2L);
@@ -128,11 +128,11 @@ class TransactionServiceTest {
         dto.setCurrency(Currency.EUR);
 
         var exception = assertThrows(AccountNotFoundException.class, () -> transactionService.createTransaction(dto));
-        assertEquals(ExceptionMessage.ACCOUNT_NOT_FOUND + " with id: -1", exception.getMessage());
+        assertEquals(ExceptionMessage.ACCOUNT_NOT_FOUND + " with ID: -1", exception.getMessage());
     }
 
     @Test
-    void failToCreateTransactionWithInvalidTargetAccountId() {
+    void testCreateTransactionFailsWithInvalidTargetAccountId() {
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(1L);
         dto.setTargetAccountId(-1L);
@@ -140,11 +140,11 @@ class TransactionServiceTest {
         dto.setCurrency(Currency.EUR);
 
         var exception = assertThrows(AccountNotFoundException.class, () -> transactionService.createTransaction(dto));
-        assertEquals(ExceptionMessage.ACCOUNT_NOT_FOUND + " with id: -1", exception.getMessage());
+        assertEquals(ExceptionMessage.ACCOUNT_NOT_FOUND + " with ID: -1", exception.getMessage());
     }
 
     @Test
-    void failToCreateTransactionWithInvalidAmount() {
+    void testCreateTransactionFailsWithInvalidAmount() {
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(1L);
         dto.setTargetAccountId(2L);
@@ -156,7 +156,7 @@ class TransactionServiceTest {
     }
 
     @Test
-    void failToCreateTransactionWithInsufficientBalance() {
+    void testCreateTransactionFailsWithInsufficientBalance() {
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(1L);
         dto.setTargetAccountId(2L);
@@ -168,7 +168,7 @@ class TransactionServiceTest {
     }
 
     @Test
-    void failToCreateTransactionWithInvalidCurrency() {
+    void testCreateTransactionFailsWithInvalidCurrency() {
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(1L);
         dto.setTargetAccountId(2L);
@@ -180,7 +180,7 @@ class TransactionServiceTest {
     }
 
     @Test
-    void failToCreateTransactionBetweenSameAccounts() {
+    void testCreateTransactionFailsBetweenSameAccounts() {
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(1L);
         dto.setTargetAccountId(1L);

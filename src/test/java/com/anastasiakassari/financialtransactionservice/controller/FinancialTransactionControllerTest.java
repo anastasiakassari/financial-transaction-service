@@ -33,7 +33,8 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 class FinancialTransactionControllerTest {
 
-    static final String URL_API = "/api/v1/fts";
+    public static final String URL_API = "/api/v1/fts";
+
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
@@ -59,7 +60,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void requestToGetAccounts() throws Exception {
+    void shouldGetAccounts() throws Exception {
         Account account = accounts.get(0);
         when(accountService.getAccounts()).thenReturn(accounts);
 
@@ -75,7 +76,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void requestToGetAccountsReturnsEmptyList() throws Exception {
+    void shouldGetAccountsReturnsEmptyList() throws Exception {
         when(accountService.getAccounts()).thenReturn(new ArrayList<>());
 
         mockMvc.perform(MockMvcRequestBuilders.get(URL_API + "/accounts"))
@@ -87,7 +88,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void requestToGetAccountById() throws Exception {
+    void shouldGetAccountById() throws Exception {
         when(accountService.getAccountById(1L)).thenReturn(accounts.get(0));
 
         mockMvc.perform(MockMvcRequestBuilders.get(URL_API + "/account/1"))
@@ -98,17 +99,18 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void failedRequestToGetAccountById() throws Exception {
-        when(accountService.getAccountById(123L)).thenThrow(AccountNotFoundException.class);
+    void shouldFailToGetAccountById() throws Exception {
+        long invalidId = 123L;
+        when(accountService.getAccountById(invalidId)).thenThrow(AccountNotFoundException.class);
 
-        mockMvc.perform(MockMvcRequestBuilders.get(URL_API + "/account/123"))
+        mockMvc.perform(MockMvcRequestBuilders.get(URL_API + "/account/" + invalidId))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
 
-        verify(accountService, times(1)).getAccountById(123L);
+        verify(accountService, times(1)).getAccountById(invalidId);
     }
 
     @Test
-    void requestToCreateAccountWithAllParams() throws Exception {
+    void shouldCreateAccountWithAllParams() throws Exception {
         Account account = accounts.get(0);
         AccountDTO dto = new AccountDTO();
         dto.setCurrency(account.getCurrency());
@@ -126,7 +128,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void requestToCreateAccountWithoutBalance() throws Exception {
+    void shouldCreateAccountWithoutBalance() throws Exception {
         Account account = accounts.get(2);
         AccountDTO dto = new AccountDTO();
         dto.setCurrency(account.getCurrency());
@@ -143,7 +145,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void failedRequestToCreateAccountWithoutParams() throws Exception {
+    void shouldFailToCreateAccountWithoutParams() throws Exception {
         AccountDTO dto = new AccountDTO();
         when(accountService.createAccount(any(AccountDTO.class))).thenThrow(MissingParameterException.class);
 
@@ -155,7 +157,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void failedRequestToCreateAccountWithInvalidBalance() throws Exception {
+    void shouldFailToCreateAccountWithInvalidBalance() throws Exception {
         AccountDTO dto = new AccountDTO();
         dto.setCurrency(Currency.USD);
         dto.setBalance(-10.0);
@@ -169,7 +171,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void requestToGetTransactions() throws Exception {
+    void shouldGetTransactions() throws Exception {
         Transaction transaction = transactions.get(0);
         when(transactionService.getTransactions()).thenReturn(transactions);
 
@@ -187,7 +189,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void requestToGetTransactionsReturnsEmptyList() throws Exception {
+    void shouldGetTransactionsReturnsEmptyList() throws Exception {
         when(transactionService.getTransactions()).thenReturn(new ArrayList<>());
 
         mockMvc.perform(MockMvcRequestBuilders.get(URL_API + "/transactions"))
@@ -199,7 +201,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void requestToGetTransactionById() throws Exception {
+    void shouldGetTransactionById() throws Exception {
         when(transactionService.getTransactionById(1L)).thenReturn(transactions.get(0));
 
         mockMvc.perform(MockMvcRequestBuilders.get(URL_API + "/transaction/1"))
@@ -210,7 +212,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void failedRequestToGetTransactionById() throws Exception {
+    void shouldFailToGetTransactionById() throws Exception {
         when(transactionService.getTransactionById(123L)).thenThrow(TransactionNotFoundException.class);
 
         mockMvc.perform(MockMvcRequestBuilders.get(URL_API + "/transaction/123"))
@@ -220,7 +222,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void requestToCreateTransactionWithAllParams() throws Exception {
+    void shouldCreateTransactionWithAllParams() throws Exception {
         Transaction transaction = transactions.get(0);
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(transaction.getSourceAccountId());
@@ -244,7 +246,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void failedRequestToCreateTransactionWithoutParams() throws Exception {
+    void shouldFailToCreateTransactionWithoutParams() throws Exception {
         TransactionDTO dto = new TransactionDTO();
         when(transactionService.createTransaction(any(TransactionDTO.class))).thenThrow(MissingParameterException.class);
 
@@ -256,7 +258,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void failedRequestToCreateTransactionWithInvalidSourceAccountId() throws Exception {
+    void shouldFailToCreateTransactionWithInvalidSourceAccountId() throws Exception {
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(123L);
         dto.setTargetAccountId(1L);
@@ -271,7 +273,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void failedRequestToCreateTransactionWithInvalidTargetAccountId() throws Exception {
+    void shouldFailToCreateTransactionWithInvalidTargetAccountId() throws Exception {
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(1L);
         dto.setTargetAccountId(123L);
@@ -286,7 +288,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void failedRequestToCreateTransactionBetweenSameAccounts() throws Exception {
+    void shouldFailToCreateTransactionBetweenSameAccounts() throws Exception {
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(1L);
         dto.setTargetAccountId(1L);
@@ -302,7 +304,7 @@ class FinancialTransactionControllerTest {
 
 
     @Test
-    void failedRequestToCreateTransactionWithInvalidAmount() throws Exception {
+    void shouldFailToCreateTransactionWithInvalidAmount() throws Exception {
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(1L);
         dto.setTargetAccountId(1L);
@@ -318,7 +320,7 @@ class FinancialTransactionControllerTest {
 
 
     @Test
-    void failedRequestToCreateTransactionWithInvalidCurrency() throws Exception {
+    void shouldFailToCreateTransactionWithInvalidCurrency() throws Exception {
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(1L);
         dto.setTargetAccountId(3L);
@@ -334,7 +336,7 @@ class FinancialTransactionControllerTest {
     }
 
     @Test
-    void failedRequestToCreateTransactionWithInsufficientBalance() throws Exception {
+    void shouldFailToCreateTransactionWithInsufficientBalance() throws Exception {
         TransactionDTO dto = new TransactionDTO();
         dto.setSourceAccountId(1L);
         dto.setTargetAccountId(3L);

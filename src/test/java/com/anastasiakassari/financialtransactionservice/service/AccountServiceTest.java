@@ -31,7 +31,7 @@ class AccountServiceTest {
     private AccountService accountService;
 
     @Test
-    void getAccounts() {
+    void testGetAccounts() {
         List<Account> accounts = accountService.getAccounts();
         assertNotNull(accounts);
         int initialSize = accounts.size();
@@ -47,7 +47,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void getAccountById() {
+    void testGetAccountById() {
         Account account = accountRepository.save(new Account(null, 100.0, Currency.GBP, new Timestamp(System.currentTimeMillis())));
         Account serviceAccount = accountService.getAccountById(account.getId());
         assertNotNull(serviceAccount);
@@ -55,14 +55,14 @@ class AccountServiceTest {
     }
 
     @Test
-    void failToGetAccountWithInvalidId() {
+    void testGetAccountFailsWithInvalidId() {
         long invalidId = -1L;
         var exception = assertThrows(AccountNotFoundException.class, () -> accountService.getAccountById(invalidId));
-        assertEquals(ExceptionMessage.ACCOUNT_NOT_FOUND + " with id: " + invalidId, exception.getMessage());
+        assertEquals(ExceptionMessage.ACCOUNT_NOT_FOUND + " with ID: " + invalidId, exception.getMessage());
     }
 
     @Test
-    void createAccountWithAllParams() {
+    void testCreateAccountWithAllParams() {
         AccountDTO dto = new AccountDTO();
         dto.setBalance(10.0);
         dto.setCurrency(Currency.USD);
@@ -74,7 +74,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void createAccountWithoutBalance() {
+    void testCreateAccountWithoutBalance() {
         AccountDTO dto = new AccountDTO();
         dto.setCurrency(Currency.USD);
 
@@ -85,14 +85,14 @@ class AccountServiceTest {
     }
 
     @Test
-    void failToCreateAccountWithoutParams() {
+    void testCreateAccountFailsWithoutParams() {
         AccountDTO dto = new AccountDTO();
         var exception = assertThrows(MissingParameterException.class, () -> accountService.createAccount(dto));
         assertEquals("One or more parameters are missing", exception.getMessage());
     }
 
     @Test
-    void failToCreateAccountWithInvalidBalance() {
+    void testCreateAccountFailsWithInvalidBalance() {
         AccountDTO dto = new AccountDTO();
         dto.setCurrency(Currency.USD);
         dto.setBalance(-10.0);
@@ -101,7 +101,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void updateAccountWithValidAccount() {
+    void testUpdateAccountWithValidAccount() {
         Account account = accountRepository.save(new Account(null, 100.0, Currency.USD, new Timestamp(System.currentTimeMillis())));
         Account updatedAccount = new Account(account.getId(), 200.0, Currency.EUR, account.getCreatedAt());
         Account result = accountService.updateAccount(updatedAccount);
@@ -109,7 +109,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void failToUpdateAccountWithInvalidAccountParams() {
+    void testUpdateAccountFailsWithInvalidAccountParams() {
         Account account = new Account(null, 200.0, Currency.EUR, new Timestamp(System.currentTimeMillis()));
 
         var exception = assertThrows(InvalidParametersException.class, () -> accountService.updateAccount(account));
@@ -117,16 +117,16 @@ class AccountServiceTest {
     }
 
     @Test
-    void failToUpdateAccountWithInvalidAccountId() {
+    void testUpdateAccountFailsWithInvalidAccountId() {
         long invalidId = 123456L;
         Account account = new Account(invalidId, 200.0, Currency.EUR, new Timestamp(System.currentTimeMillis()));
 
         var exception = assertThrows(AccountNotFoundException.class, () -> accountService.updateAccount(account));
-        assertEquals(ExceptionMessage.ACCOUNT_NOT_FOUND + " with id: " + invalidId, exception.getMessage());
+        assertEquals(ExceptionMessage.ACCOUNT_NOT_FOUND + " with ID: " + invalidId, exception.getMessage());
     }
 
     @Test
-    void failToUpdateAccountWithInvalidBalance() {
+    void testUpdateAccountFailsWithInvalidBalance() {
         Account account = accountRepository.save(new Account(null, 100.0, Currency.USD, new Timestamp(System.currentTimeMillis())));
         Account updatedAccount = new Account(account.getId(), -100.0, Currency.USD, account.getCreatedAt());
 
@@ -135,7 +135,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void deleteAccountById() {
+    void testDeleteAccountById() {
         Account account = accountRepository.save(new Account(null, 100.0, Currency.USD, new Timestamp(System.currentTimeMillis())));
         long id = account.getId();
         assertTrue(accountService.deleteAccount(id));
@@ -143,9 +143,9 @@ class AccountServiceTest {
     }
 
     @Test
-    void failToDeleteAccountByInvalidAccountId() {
+    void testDeleteAccountFailsWithInvalidAccountId() {
         long invalidId = 123456L;
         var exception = assertThrows(AccountNotFoundException.class, () -> accountService.deleteAccount(invalidId));
-        assertEquals(ExceptionMessage.ACCOUNT_NOT_FOUND + " with id: " + invalidId, exception.getMessage());
+        assertEquals(ExceptionMessage.ACCOUNT_NOT_FOUND + " with ID: " + invalidId, exception.getMessage());
     }
 }
