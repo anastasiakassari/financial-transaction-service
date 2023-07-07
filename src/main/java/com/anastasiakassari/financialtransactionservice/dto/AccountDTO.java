@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * AccountDTO represents the data transfer object for creating an account.
+ */
 @Setter
 @Getter
 @ToString

@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
+/**
+ * Account represents a financial account.
+ */
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Data

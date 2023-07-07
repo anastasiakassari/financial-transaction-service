@@ -6,11 +6,12 @@ import com.anastasiakassari.financialtransactionservice.model.Account;
 import com.anastasiakassari.financialtransactionservice.model.Transaction;
 import com.anastasiakassari.financialtransactionservice.repository.AccountRepository;
 import com.anastasiakassari.financialtransactionservice.repository.TransactionRepository;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Account createAccount(AccountDTO dto) throws FinancialTransactionServiceException {
         logger.debug("Creating account with DTO: {}", dto);
 

@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+/**
+ * Transaction represents a financial transaction between two accounts.
+ */
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Data

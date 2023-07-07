@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * TransactionDTO represents the data transfer object for creating a transaction.
+ */
 @Setter
 @Getter
 @ToString
