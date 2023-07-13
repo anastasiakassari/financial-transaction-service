@@ -109,21 +109,27 @@ Before deploying the application, you need to provide the necessary configuratio
 ### Deployment
 
 1. Open a terminal or command prompt.
-2. Navigate to the root directory of your project where the `docker-compose.yml` file is located.
-3. Run the following command to start the Docker containers:
+2. Navigate to the root directory of your project where the `docker-compose.yml` file is located.3.
+3. Run the following command to build the Docker image:
+
+```shell
+docker-compose build
+```
+
+4. Run the following command to start the Docker containers:
 
 ```shell
 docker-compose up -d
 ```
 
-4. Docker Compose will build the application and start the containers defined in the `docker-compose.yml` file.
-5. Wait for the containers to start up. You can check the logs for any issues using the command:
+5. Docker Compose will build the application and start the containers defined in the `docker-compose.yml` file.
+6. Wait for the containers to start up. You can check the logs for any issues using the command:
 
 ```shell
 docker-compose logs -f
 ```
 
-6. Once the containers are running, the application will be accessible at `http://localhost:8080`.
+7. Once the containers are running, the application will be accessible at `http://localhost:8080`.
 
 ### Stopping the Deployment
 
